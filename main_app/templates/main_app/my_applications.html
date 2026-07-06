@@ -1,0 +1,58 @@
+{% extends 'main_app/base.html' %}
+
+{% block title %}My Applications{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold">My Applications</h1>
+    <span class="badge badge-primary fs-6">{{ applications|length }} applications</span>
+</div>
+
+{% if applications %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Position</th>
+                    <th>Company</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'main_app:vacancy_detail' app.vacancy.pk %}" class="text-decoration-none fw-semibold" style="color: #1a1a2e;">
+                                {{ app.vacancy.title }}
+                            </a>
+                        </td>
+                        <td>{{ app.vacancy.company.name }}</td>
+                        <td>{{ app.applied_at|date:"M d, Y" }}</td>
+                        <td>
+                            {% if app.status == 'send' %}
+                                <span class="badge badge-warning">Sent</span>
+                            {% elif app.status == 'seen' %}
+                                <span class="badge badge-info">Seen</span>
+                            {% elif app.status == 'accepted' %}
+                                <span class="badge badge-success">Accepted 🎉</span>
+                            {% elif app.status == 'rejected' %}
+                                <span class="badge badge-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card p-5 text-center">
+        <div style="font-size: 4rem; opacity: 0.2; user-select: none;">📭</div>
+        <h4 class="mt-3">No applications yet</h4>
+        <p class="text-muted">Find your dream job and apply today!</p>
+        <a href="{% url 'main_app:vacancy_list' %}" class="btn btn-primary">Browse Vacancies</a>
+    </div>
+{% endif %}
+
+<a href="{% url 'main_app:profile' %}" class="btn btn-secondary mt-3">← Back to Profile</a>
+{% endblock %}
