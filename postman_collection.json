@@ -1,0 +1,197 @@
+{
+  "info": {
+    "name": "JobTracker API",
+    "description": "Коллекция запросов для API трекера вакансий и стажировок (KBTU project)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"alice\",\n  \"password\": \"StrongPass123\"\n}" },
+            "url": "{{base_url}}/auth/register/"
+          },
+          "response": [
+            { "name": "201 Created", "code": 201, "body": "{\n  \"token\": \"a1b2c3...\",\n  \"username\": \"alice\"\n}" }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"alice\",\n  \"password\": \"StrongPass123\"\n}" },
+            "url": "{{base_url}}/auth/login/"
+          },
+          "response": [
+            { "name": "200 OK", "code": 200, "body": "{\n  \"token\": \"a1b2c3...\",\n  \"username\": \"alice\"\n}" }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Token {{token}}" }],
+            "url": "{{base_url}}/auth/logout/"
+          },
+          "response": [
+            { "name": "200 OK", "code": 200, "body": "{\n  \"message\": \"Вы вышли из системы\"\n}" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vacancies (Full CRUD)",
+      "item": [
+        {
+          "name": "List / Search Vacancies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/vacancies/?keyword=backend&employment_type=internship"
+          },
+          "response": [
+            { "name": "200 OK", "code": 200, "body": "[\n  {\n    \"id\": 1,\n    \"title\": \"Backend Intern\",\n    \"company_name\": \"TechCorp\",\n    \"category_name\": \"Backend\",\n    \"employment_type\": \"internship\",\n    \"deadline\": \"2026-08-01\"\n  }\n]" }
+          ]
+        },
+        {
+          "name": "Create Vacancy",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Backend Intern\",\n  \"description\": \"Django/DRF internship\",\n  \"company\": 1,\n  \"category\": 1,\n  \"location\": \"Almaty\",\n  \"employment_type\": \"internship\",\n  \"salary_min\": 150000,\n  \"salary_max\": 250000,\n  \"deadline\": \"2026-08-01\"\n}" },
+            "url": "{{base_url}}/vacancies/"
+          },
+          "response": [
+            { "name": "201 Created", "code": 201, "body": "{\n  \"id\": 1,\n  \"title\": \"Backend Intern\",\n  \"posted_by\": \"alice\"\n}" }
+          ]
+        },
+        {
+          "name": "Retrieve Vacancy",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/vacancies/1/" },
+          "response": [{ "name": "200 OK", "code": 200, "body": "{\n  \"id\": 1,\n  \"title\": \"Backend Intern\"\n}" }]
+        },
+        {
+          "name": "Update Vacancy",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"salary_max\": 280000\n}" },
+            "url": "{{base_url}}/vacancies/1/"
+          },
+          "response": [{ "name": "200 OK", "code": 200, "body": "{\n  \"id\": 1,\n  \"salary_max\": 280000\n}" }]
+        },
+        {
+          "name": "Delete Vacancy",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Token {{token}}" }],
+            "url": "{{base_url}}/vacancies/1/"
+          },
+          "response": [{ "name": "204 No Content", "code": 204, "body": "" }]
+        }
+      ]
+    },
+    {
+      "name": "Companies",
+      "item": [
+        {
+          "name": "List Companies",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/companies/" },
+          "response": [{ "name": "200 OK", "code": 200, "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"TechCorp\"\n  }\n]" }]
+        },
+        {
+          "name": "Create Company",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"TechCorp\",\n  \"description\": \"IT company\",\n  \"website\": \"https://techcorp.example\"\n}" },
+            "url": "{{base_url}}/companies/"
+          },
+          "response": [{ "name": "201 Created", "code": 201, "body": "{\n  \"id\": 1,\n  \"name\": \"TechCorp\"\n}" }]
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/categories/" },
+          "response": [{ "name": "200 OK", "code": 200, "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Backend\"\n  }\n]" }]
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Backend\"\n}" },
+            "url": "{{base_url}}/categories/"
+          },
+          "response": [{ "name": "201 Created", "code": 201, "body": "{\n  \"id\": 1,\n  \"name\": \"Backend\"\n}" }]
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "My Applications",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Token {{token}}" }],
+            "url": "{{base_url}}/applications/"
+          },
+          "response": [{ "name": "200 OK", "code": 200, "body": "[\n  {\n    \"id\": 1,\n    \"vacancy_title\": \"Backend Intern\",\n    \"status\": \"pending\"\n  }\n]" }]
+        },
+        {
+          "name": "Apply to Vacancy",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"vacancy\": 1,\n  \"cover_letter\": \"I would love to join your team!\"\n}" },
+            "url": "{{base_url}}/applications/"
+          },
+          "response": [{ "name": "201 Created", "code": 201, "body": "{\n  \"id\": 1,\n  \"status\": \"pending\"\n}" }]
+        },
+        {
+          "name": "Update Application Status (employer)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Token {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"accepted\"\n}" },
+            "url": "{{base_url}}/applications/1/status/"
+          },
+          "response": [{ "name": "200 OK", "code": 200, "body": "{\n  \"id\": 1,\n  \"status\": \"accepted\"\n}" }]
+        }
+      ]
+    }
+  ]
+}
