@@ -1,0 +1,52 @@
+{% extends 'main_app/base.html' %}
+
+{% block title %}{{ company.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card p-4">
+            <div class="text-center">
+                <div style="font-size: 4rem; opacity: 0.2; user-select: none;">🏢</div>
+                <h3 class="fw-bold mt-2">{{ company.name }}</h3>
+                <p class="text-muted">{{ company.description }}</p>
+                {% if company.website %}
+                    <p><a href="{{ company.website }}" target="_blank" class="text-decoration-none">Visit Website →</a></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold">Open Positions</h3>
+            <span class="badge badge-primary fs-6">{{ vacancies|length }} vacancies</span>
+        </div>
+        
+        {% if vacancies %}
+            {% for vacancy in vacancies %}
+                <div class="card p-3 mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="fw-bold">
+                                <a href="{% url 'main_app:vacancy_detail' vacancy.pk %}" class="text-decoration-none" style="color: #1a1a2e;">
+                                    {{ vacancy.title }}
+                                </a>
+                            </h5>
+                            <span class="badge badge-info">{{ vacancy.get_level_display }}</span>
+                        </div>
+                        <p class="text-muted small">📍 {{ vacancy.city }} • 📅 {{ vacancy.created_at|date:"M d, Y" }}</p>
+                        <p class="small text-muted">{{ vacancy.description|truncatewords:25 }}</p>
+                        <a href="{% url 'main_app:vacancy_detail' vacancy.pk %}" class="btn btn-primary btn-sm">
+                            View Details →
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">No active vacancies at this company</div>
+        {% endif %}
+        
+        <a href="{% url 'main_app:vacancy_list' %}" class="btn btn-secondary">← Back to Vacancies</a>
+    </div>
+</div>
+{% endblock %}
