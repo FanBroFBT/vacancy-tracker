@@ -90,7 +90,7 @@ def register(request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            Profile.objects.create(user=user, role='applicant')
+            Profile.objects.create(user=user, role=form.cleaned_data['role'])
             login(request, user)
             messages.success(request, '✅ Registration successful!')
             return redirect('main_app:home')

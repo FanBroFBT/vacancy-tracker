@@ -5,7 +5,12 @@ from .models import Profile, Application
 
 
 class UserRegisterForm(UserCreationForm):
+    ROLE_CHOICES = [
+        ('applicant', 'Applicant'),
+        ('employer', 'Employer'),
+    ]
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    role = forms.ChoiceField(choices=ROLE_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
     
     class Meta:
         model = User
