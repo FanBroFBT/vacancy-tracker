@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from .models import Vacancy, Company, Application, Profile
-from .forms import UserRegisterForm, ApplicationForm
+from .forms import UserRegisterForm, ApplicationForm, VacancyForm
 
 
 def home(request):
@@ -31,6 +31,27 @@ def vacancy_list(request):
 def vacancy_detail(request, pk):
     vacancy = get_object_or_404(Vacancy, pk=pk)
     return render(request, 'main_app/vacancy_detail.html', {'vacancy': vacancy})
+
+
+@login_required
+def create_vacancy(request):
+    if request.user.profile.role != 'employer':
+        messages.error(request, 'You are not employer')
+        return redirect('main_app:home')
+    
+    if request.method == 'GET':
+        form = VacancyForm()
+        return render(request, 'main_app/create_vacancy.html', {'form': form})
+    elif request.method == 'POST':
+        form = VacancyForm(request.POST)
+        if form.is_valid():
+            vacancy = form.save(commit=False)
+            vacancy.company = request.user.company
+            vacancy.save()
+            messages.success(request, 'Succesfully created!')
+            return redirect('main_app:vacancy_detail', pk=vacancy.pk)
+        else:
+            return render(request, 'main_app/create_vacancy.html', {'form': form})
 
 
 @login_required
