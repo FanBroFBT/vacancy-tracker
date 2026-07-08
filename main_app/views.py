@@ -116,8 +116,9 @@ def company_detail(request, pk):
 
 @login_required
 def profile(request):
-    profile = get_object_or_404(Profile, user=request.user)
-    return render(request, 'main_app/profile.html', {'profile': profile})
+    profile = Profile.objects.filter(user=request.user).first()
+    company = Company.objects.filter(owner=request.user).first()
+    return render(request, 'main_app/profile.html', {'profile': profile, 'company': company})
 
 @login_required
 def profile_edit(request):
@@ -132,6 +133,23 @@ def profile_edit(request):
             return redirect('main_app:profile')
         else:
             return render(request, 'main_app/profile_edit.html', {'form': form})
+        
+@login_required
+def company_edit(request):
+    if request.user.profile.role != 'employer':
+        messages.error(request, 'You are not employer')
+        return redirect('main_app:home')
+    company = get_object_or_404(Company, owner=request.user)
+    if request.method == 'GET':
+        form = CompanyForm(instance=company)
+        return render(request, 'main_app/company_edit.html', {'form': form})
+    elif request.method == 'POST':
+        form = CompanyForm(request.POST, request.FILES, instance=company)
+        if form.is_valid():
+            form.save()
+            return redirect('main_app:company_detail', pk=company.pk)
+        else:
+            return render(request, 'main_app/company_edit.html', {'form': form})
 
 
 @login_required
