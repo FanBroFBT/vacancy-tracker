@@ -42,7 +42,7 @@ def create_vacancy(request):
     if request.user.profile.role != 'employer':
         messages.error(request, 'You are not employer')
         return redirect('main_app:home')
-    
+
     if not hasattr(request.user, 'company'):
         messages.error(request, 'Сначала создайте компанию')
         return redirect('main_app:create_company')
@@ -60,6 +60,30 @@ def create_vacancy(request):
             return redirect('main_app:vacancy_detail', pk=vacancy.pk)
         else:
             return render(request, 'main_app/create_vacancy.html', {'form': form})
+
+
+@login_required
+def create_company(request):
+    if request.user.profile.role != 'employer':
+        messages.error(request, 'You are not employer')
+        return redirect('main_app:home')
+
+    if hasattr(request.user, 'company'):
+        return redirect('main_app:company_edit')
+
+    if request.method == 'GET':
+        form = CompanyForm()
+        return render(request, 'main_app/create_company.html', {'form': form})
+    elif request.method == 'POST':
+        form = CompanyForm(request.POST, request.FILES)
+        if form.is_valid():
+            company = form.save(commit=False)
+            company.owner = request.user
+            company.save()
+            messages.success(request, 'Succesfully created!')
+            return redirect('main_app:company_detail', pk=company.pk)
+        else:
+            return render(request, 'main_app/create_company.html', {'form': form})
 
 
 @login_required
@@ -104,68 +128,47 @@ def company_detail(request, pk):
 
 @login_required
 def profile(request):
-    profile = get_object_or_404(Profile, user=request.user)
+    profile = Profile.objects.filter(user=request.user).first()
     company = Company.objects.filter(owner=request.user).first()
-    return render(request, 'main_app/profile.html', {
-        'profile': profile,
-        'company': company,
-    })
+    return render(request, 'main_app/profile.html', {'profile': profile, 'company': company})
 
 
 @login_required
 def profile_edit(request):
     profile = get_object_or_404(Profile, user=request.user)
 
-    if request.method == 'POST':
+    if request.method == 'GET':
+        form = ProfileForm(instance=profile)
+        return render(request, 'main_app/profile_edit.html', {'form': form})
+    elif request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
             messages.success(request, '✅ Профиль обновлён!')
             return redirect('main_app:profile')
-    else:
-        form = ProfileForm(instance=profile)
-
-    return render(request, 'main_app/profile_edit.html', {'form': form})
-
-
-@login_required
-def create_company(request):
-    if request.user.profile.role != 'employer':
-        messages.error(request, 'Only employers can create a company')
-        return redirect('main_app:home')
-
-    existing = Company.objects.filter(owner=request.user).first()
-    if existing:
-        return redirect('main_app:company_edit')
-
-    if request.method == 'POST':
-        form = CompanyForm(request.POST, request.FILES)
-        if form.is_valid():
-            company = form.save(commit=False)
-            company.owner = request.user
-            company.save()
-            messages.success(request, '✅ Компания создана!')
-            return redirect('main_app:profile')
-    else:
-        form = CompanyForm()
-
-    return render(request, 'main_app/create_company.html', {'form': form})
+        else:
+            return render(request, 'main_app/profile_edit.html', {'form': form})
 
 
 @login_required
 def company_edit(request):
+    if request.user.profile.role != 'employer':
+        messages.error(request, 'You are not employer')
+        return redirect('main_app:home')
+
     company = get_object_or_404(Company, owner=request.user)
 
-    if request.method == 'POST':
+    if request.method == 'GET':
+        form = CompanyForm(instance=company)
+        return render(request, 'main_app/company_edit.html', {'form': form})
+    elif request.method == 'POST':
         form = CompanyForm(request.POST, request.FILES, instance=company)
         if form.is_valid():
             form.save()
             messages.success(request, '✅ Компания обновлена!')
-            return redirect('main_app:profile')
-    else:
-        form = CompanyForm(instance=company)
-
-    return render(request, 'main_app/company_edit.html', {'form': form})
+            return redirect('main_app:company_detail', pk=company.pk)
+        else:
+            return render(request, 'main_app/company_edit.html', {'form': form})
 
 
 @login_required

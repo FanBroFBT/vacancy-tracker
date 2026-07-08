@@ -69,3 +69,15 @@ class ApplicationForm(forms.ModelForm):
                 'placeholder': 'Напишите сопроводительное письмо...'
             }),
         }
+
+class CompanyForm(forms.ModelForm):
+    class Meta:
+        model = Company
+        fields = ['name', 'description', 'website', 'logo']
+        widgets = {
+            'name': forms.TextInput(attrs={'class' : 'form-control'}),
+            'description': forms.Textarea(attrs={'class' : 'form-control', 'rows': 4}),
+            'website': forms.URLInput(attrs={'class' : 'form-control'}),
+            'logo': forms.FileInput(attrs={'class' : 'form-control'}),
+        }
+            
