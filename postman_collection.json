@@ -1,0 +1,164 @@
+{
+  "info": {
+    "name": "Vacancy Tracker API",
+    "description": "DRF backend: token auth, CRUD вакансий, отклики привязанные к request.user",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api" },
+    { "key": "employer_token", "value": "" },
+    { "key": "applicant_token", "value": "" },
+    { "key": "vacancy_id", "value": "1" },
+    { "key": "application_id", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Get token (employer)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "employer1" },
+                { "key": "password", "value": "pass12345" }
+              ]
+            },
+            "url": "{{base_url}}/token/"
+          }
+        },
+        {
+          "name": "Get token (applicant)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "applicant1" },
+                { "key": "password", "value": "pass12345" }
+              ]
+            },
+            "url": "{{base_url}}/token/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vacancies (CRUD)",
+      "item": [
+        {
+          "name": "List vacancies (public)",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/vacancies/" }
+        },
+        {
+          "name": "Search vacancies (city, level)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/vacancies/search/?city=Almaty&level=junior"
+          }
+        },
+        {
+          "name": "Create vacancy (employer only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{employer_token}}" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "title", "value": "Python Developer" },
+                { "key": "description", "value": "Backend on Django" },
+                { "key": "requirements", "value": "Django, DRF" },
+                { "key": "level", "value": "junior" },
+                { "key": "city", "value": "Almaty" }
+              ]
+            },
+            "url": "{{base_url}}/vacancies/"
+          }
+        },
+        {
+          "name": "Retrieve vacancy",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/vacancies/{{vacancy_id}}/" }
+        },
+        {
+          "name": "Update vacancy (owner only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Token {{employer_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"Python Developer (обновлено)\"}"
+            },
+            "url": "{{base_url}}/vacancies/{{vacancy_id}}/"
+          }
+        },
+        {
+          "name": "Delete vacancy (owner only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Token {{employer_token}}" }
+            ],
+            "url": "{{base_url}}/vacancies/{{vacancy_id}}/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications (tied to request.user)",
+      "item": [
+        {
+          "name": "Apply to vacancy (applicant)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Token {{applicant_token}}" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "vacancy", "value": "{{vacancy_id}}" },
+                { "key": "message", "value": "Хочу на эту вакансию" }
+              ]
+            },
+            "url": "{{base_url}}/my-applications/"
+          }
+        },
+        {
+          "name": "My applications (only own)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Token {{applicant_token}}" }
+            ],
+            "url": "{{base_url}}/my-applications/"
+          }
+        },
+        {
+          "name": "Update application status (employer only)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Token {{employer_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"accepted\"}"
+            },
+            "url": "{{base_url}}/applications/{{application_id}}/status/"
+          }
+        }
+      ]
+    }
+  ]
+}
