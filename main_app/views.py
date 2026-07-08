@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from .models import Vacancy, Company, Application, Profile
-from .forms import UserRegisterForm, ApplicationForm, VacancyForm
+from .forms import UserRegisterForm, ApplicationForm, VacancyForm, CompanyForm, ProfileForm
 
 
 def home(request):
@@ -53,6 +53,26 @@ def create_vacancy(request):
         else:
             return render(request, 'main_app/create_vacancy.html', {'form': form})
 
+@login_required   
+def create_company(request):
+    if request.user.profile.role != 'employer':
+        messages.error(request, 'You are not employer')
+        return redirect('main_app:home')
+    
+    if request.method == 'GET':
+        form = CompanyForm()
+        return render(request, 'main_app/create_company.html', {'form': form})
+    elif request.method == 'POST':
+        form = CompanyForm(request.POST)
+        if form.is_valid():
+            company = form.save(commit=False)
+            company.owner = request.user
+            company.save()
+            messages.success(request, 'Succesfully created!')
+            return redirect('main_app:company_detail', pk=company.pk)
+        else:
+            return render(request, 'main_app/create_company.html',{'form': form})
+
 
 @login_required
 def apply_to_vacancy(request, pk):
@@ -96,8 +116,40 @@ def company_detail(request, pk):
 
 @login_required
 def profile(request):
+    profile = Profile.objects.filter(user=request.user).first()
+    company = Company.objects.filter(owner=request.user).first()
+    return render(request, 'main_app/profile.html', {'profile': profile, 'company': company})
+
+@login_required
+def profile_edit(request):
     profile = get_object_or_404(Profile, user=request.user)
-    return render(request, 'main_app/profile.html', {'profile': profile})
+    if request.method == 'GET':
+        form = ProfileForm(instance=profile)
+        return render(request, 'main_app/profile_edit.html', {'form': form})
+    elif request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('main_app:profile')
+        else:
+            return render(request, 'main_app/profile_edit.html', {'form': form})
+        
+@login_required
+def company_edit(request):
+    if request.user.profile.role != 'employer':
+        messages.error(request, 'You are not employer')
+        return redirect('main_app:home')
+    company = get_object_or_404(Company, owner=request.user)
+    if request.method == 'GET':
+        form = CompanyForm(instance=company)
+        return render(request, 'main_app/company_edit.html', {'form': form})
+    elif request.method == 'POST':
+        form = CompanyForm(request.POST, request.FILES, instance=company)
+        if form.is_valid():
+            form.save()
+            return redirect('main_app:company_detail', pk=company.pk)
+        else:
+            return render(request, 'main_app/company_edit.html', {'form': form})
 
 
 @login_required
