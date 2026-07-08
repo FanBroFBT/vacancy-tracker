@@ -187,6 +187,14 @@ def profile(request):
     company = Company.objects.filter(owner=request.user).first()
     return render(request, 'main_app/profile.html', {'profile': profile, 'company': company})
 
+@login_required
+def profile_detail(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
+    company = Company.objects.filter(owner=profile.user).first()
+    return render(request, 'main_app/profile_detail.html', {
+        'profile': profile,
+        'company': company,
+    })
 
 @login_required
 def profile_edit(request):

@@ -30,7 +30,7 @@
                     <tr>
                         <td>{{ forloop.counter }}</td>
                         <td>
-                            <strong>{{ app.applicant.username }}</strong>
+                            <a href="{% url 'main_app:profile_detail' app.applicant.profile.id %}"><strong>{{ app.applicant.username }}</strong></a>
                             <br>
                             <small class="text-muted">{{ app.applicant.email }}</small>
                         </td>
