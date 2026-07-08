@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from .models import Vacancy, Company, Application, Profile
-from .forms import UserRegisterForm, ApplicationForm, VacancyForm, CompanyForm
+from .forms import UserRegisterForm, ApplicationForm, VacancyForm, CompanyForm, ProfileForm
 
 
 def home(request):
@@ -118,6 +118,20 @@ def company_detail(request, pk):
 def profile(request):
     profile = get_object_or_404(Profile, user=request.user)
     return render(request, 'main_app/profile.html', {'profile': profile})
+
+@login_required
+def profile_edit(request):
+    profile = get_object_or_404(Profile, user=request.user)
+    if request.method == 'GET':
+        form = ProfileForm(instance=profile)
+        return render(request, 'main_app/profile_edit.html', {'form': form})
+    elif request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('main_app:profile')
+        else:
+            return render(request, 'main_app/profile_edit.html', {'form': form})
 
 
 @login_required

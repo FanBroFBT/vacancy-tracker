@@ -20,6 +20,7 @@ urlpatterns = [
    
     path('profile/', views.profile, name='profile'),
     path('my-applications/', views.my_applications, name='my_applications'),
+    path('profile/edit/', views.profile_edit, name='profile_edit'),
     
     path('register/', views.register, name='register'),
     path('login/', auth_views.LoginView.as_view(template_name='main_app/registration/login.html'), name='login'),
