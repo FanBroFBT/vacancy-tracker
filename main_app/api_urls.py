@@ -6,6 +6,7 @@ app_name = 'api'
 
 urlpatterns = [
     path('token/', obtain_auth_token, name='token'),
+    path('logout/', api_views.logout_token, name='token-logout'),
     path('vacancies/', api_views.VacancyListCreateAPIView.as_view(), name='vacancy-list-create'),
     path('vacancies/search/', api_views.vacancy_search, name='vacancy-search'),
     path('vacancies/<int:pk>/', api_views.VacancyDetailAPIView.as_view(), name='vacancy-detail'),

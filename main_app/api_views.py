@@ -85,3 +85,9 @@ def vacancy_search(request):
         vacancies = vacancies.filter(level=level)
 
     return Response(VacancySerializer(vacancies, many=True).data)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def logout_token(request):
+    request.user.auth_token.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
