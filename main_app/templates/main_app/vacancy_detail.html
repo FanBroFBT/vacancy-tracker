@@ -37,25 +37,31 @@
             <p>{{ vacancy.requirements|linebreaks }}</p>
         </div>
 
-        {% if user.is_authenticated %}
+        {% if user.is_authenticated and user.profile.role == 'applicant' %}
             <div class="card p-4 mb-4">
                 <h5 class="fw-bold">Apply Now</h5>
                 <form method="post" action="{% url 'main_app:apply_to_vacancy' vacancy.pk %}">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="{{ form.message.id_for_label }}" class="form-label fw-semibold">Cover Letter</label>
+                        <label class="form-label fw-semibold">Cover Letter</label>
                         {{ form.message }}
-                        {{ form.message.errors }}
                     </div>
-                    <button type="submit" class="btn btn-success">
-                        Submit Application
-                    </button>
+                    <button type="submit" class="btn btn-success">Submit Application</button>
                 </form>
+            </div>
+        {% elif user.is_authenticated and user.profile.role == 'employer' %}
+            <div class="alert alert-info">
+                <strong>🔒 Employer Account</strong>
+                <p class="mb-0">You are registered as an <strong>Employer</strong>.</p>
+                {% if user == vacancy.company.owner %}
+                    <a href="{% url 'main_app:vacancy_applications' vacancy.pk %}" class="btn btn-info mt-3">
+                        👥 View Applications ({{ vacancy.application_set.count }})
+                    </a>
+                {% endif %}
             </div>
         {% else %}
             <div class="alert alert-warning">
-                <a href="{% url 'main_app:login' %}" class="fw-bold">Login</a> or 
-                <a href="{% url 'main_app:register' %}" class="fw-bold">Register</a> to apply
+                <a href="{% url 'main_app:login' %}">Login</a> or <a href="{% url 'main_app:register' %}">Register</a> to apply
             </div>
         {% endif %}
 

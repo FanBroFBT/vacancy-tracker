@@ -189,9 +189,11 @@
                 </ul>
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'main_app:my_applications' %}">My Applications</a>
-                        </li>
+                        {% if user.profile.role == 'applicant' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'main_app:my_applications' %}">My Applications</a>
+                            </li>
+                        {% endif %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'main_app:profile' %}">{{ user.username }}</a>
                         </li>
